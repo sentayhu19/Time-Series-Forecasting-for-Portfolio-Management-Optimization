@@ -25,7 +25,17 @@ def fetch_yfinance_data(
             data[t] = pd.DataFrame()
         else:
             df.index = pd.to_datetime(df.index)
-            df.columns = [c.strip() for c in df.columns]
+            # Normalize columns: if MultiIndex (field, ticker), keep only the field level.
+            if isinstance(df.columns, pd.MultiIndex):
+                try:
+                    # Common shape is 2 levels: (Field, Ticker)
+                    field_level = 0
+                    df.columns = df.columns.get_level_values(field_level)
+                except Exception:
+                    # Fallback: stringify each level and take the first non-empty as field
+                    df.columns = [str(col[0]).strip() if isinstance(col, tuple) and len(col) > 0 else str(col) for col in df.columns]
+            else:
+                df.columns = [str(c).strip() for c in df.columns]
             data[t] = df
     return data
 
