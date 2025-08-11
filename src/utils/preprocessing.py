@@ -8,6 +8,8 @@ BUSINESS_FREQ = "B"
 
 
 def ensure_datetime_index(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None or df.empty:
+        return df
     if not isinstance(df.index, pd.DatetimeIndex):
         df = df.copy()
         df.index = pd.to_datetime(df.index)
@@ -15,8 +17,16 @@ def ensure_datetime_index(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def fill_missing_dates(df: pd.DataFrame, freq: str = BUSINESS_FREQ) -> pd.DataFrame:
+    if df is None or df.empty:
+        # Nothing to fill; return as-is
+        return df
     df = ensure_datetime_index(df)
+    if df.index.size == 0:
+        return df
     start, end = df.index.min(), df.index.max()
+    if pd.isna(start) or pd.isna(end):
+        # Guard against NaT
+        return df
     full_index = pd.date_range(start=start, end=end, freq=freq)
     return df.reindex(full_index)
 
