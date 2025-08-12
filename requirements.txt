@@ -13,3 +13,5 @@ notebook>=7.2.1
 jupyterlab>=4.2.4
 tqdm>=4.66.4
 PyPortfolioOpt>=1.5.5
+tensorflow-cpu; platform_system == "Windows"
+tensorflow; platform_system != "Windows"
